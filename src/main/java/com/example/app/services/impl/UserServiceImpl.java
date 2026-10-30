@@ -1,4 +1,4 @@
-package com.example.app.services;
+package com.example.app.services.impl;
 
 import com.example.app.dtos.UserDto;
 import com.example.app.exception.ResourceNotFoundException;
@@ -6,17 +6,18 @@ import com.example.app.helpers.UserHelper;
 import com.example.app.model.Provider;
 import com.example.app.model.User;
 import com.example.app.repository.UserRepository;
+import com.example.app.services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.lang.module.ResolutionException;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
 
     private final UserRepository userRepository;
@@ -55,7 +56,16 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto updateUser(UserDto userDto, String userId) {
-        return null;
+        UUID uId = UserHelper.parseUUID(userId);
+        User existingUser = userRepository.findById(uId).orElseThrow(() -> new ResourceNotFoundException("User Not Found With This Id : " + userId));
+        if (userDto.getName() != null) existingUser.setName(userDto.getName());
+        if (userDto.getPassword() != null) existingUser.setPassword(userDto.getPassword());
+        if (userDto.getImage() != null) existingUser.setImage(userDto.getImage());
+        if (userDto.getProvider() != null) existingUser.setProvider(userDto.getProvider());
+        existingUser.setUpdatedAt(Instant.now());
+        existingUser.setEnable(userDto.isEnable());
+        User updatedUser = userRepository.save(existingUser);
+        return modelMapper.map(updatedUser, UserDto.class);
     }
 
     @Override

@@ -97,4 +97,19 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/get_user_byId")
+    public ResponseEntity<UserDto> getUserById(@RequestParam String userId){
+        System.out.println("User Id ------------" + userId);
+        UserDto userDto = userService.getUserById(userId);
+        return ResponseEntity.ok(userDto);
+    }
+
+    @PatchMapping("/update_user")
+    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto, @RequestParam String userId){
+
+        UserDto userResponse = userService.updateUser(userDto, userId);
+        return ResponseEntity.ok(userResponse);
+
+    }
 }
